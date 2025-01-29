@@ -2,3 +2,4 @@
 - LOGIN : mendapatkann JWT Token
 - LIST-PRODUCT : akses Api security  harus set header dengan key Authorization value token yang di dapat pas melakukan login 
 - PRODUCT/{id} : lakukan hal yang sama seperti pada list - product 
+- NOTED : Jika belum ada data pada tabel database jalankan methode POST untuk mengcreate sebuah data pada tabel database product 
