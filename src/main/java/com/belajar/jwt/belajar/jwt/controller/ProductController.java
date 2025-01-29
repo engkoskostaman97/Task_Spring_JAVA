@@ -59,59 +59,66 @@ public class ProductController {
     // Post a new product
     @PostMapping("/product")
     public ResponseEntity<Product> createProduct(
-            @RequestParam("imageUrl") MultipartFile file,
-            @RequestParam("name") String name, 
-            @RequestParam("brand") String brand,
-            @RequestParam("price") Integer price, 
-            @RequestParam("description") String description,
-            @RequestParam("stock") Integer stock,
-            @RequestParam("rating") Double rating,
-            @RequestHeader("Authorization") String token) {
+        @RequestParam("imageUrl") MultipartFile file,
+        @RequestParam("name") String name, 
+        @RequestParam("brand") String brand,
+        @RequestParam("price") Integer price, 
+        @RequestParam("description") String description,
+        @RequestParam("stock") Integer stock,
+        @RequestParam("rating") Double rating,
+        @RequestHeader("Authorization") String token) {
 
-        // Verify JWT token
-        try {
-            authService.extractClaims(token); 
-        } catch (Exception e) {
-            return ResponseEntity.status(403).build(); 
-        }
-
-        // Save image file
-        String imageUrl = saveImage(file);
-
-        // Create product DTO
-        ProductDto productDto = new ProductDto();
-        productDto.setName(name);
-        productDto.setBrand(brand);
-        productDto.setPrice(price); 
-        productDto.setDescription(description);
-        productDto.setStock(stock);
-        productDto.setRating(rating);
-        productDto.setImageUrl(imageUrl);
-
-        // Convert ProductDto to Product entity
-        Product product = new Product();
-        product.setName(productDto.getName());
-        product.setBrand(productDto.getBrand());
-        product.setPrice(productDto.getPrice());
-        product.setDescription(productDto.getDescription());
-        product.setStock(productDto.getStock()); 
-        product.setRating(productDto.getRating());
-        product.setImageUrl(productDto.getImageUrl());
-
-        // Save product to database
-        Product savedProduct = productService.createProduct(productDto);
-        return ResponseEntity.ok(savedProduct);
+    // Verify JWT token
+    try {
+        authService.extractClaims(token); 
+    } catch (Exception e) {
+        return ResponseEntity.status(403).build(); 
     }
+
+    // Save image and get the public URL
+    String imageUrl = saveImage(file);
+
+    // Create product DTO
+    ProductDto productDto = new ProductDto();
+    productDto.setName(name);
+    productDto.setBrand(brand);
+    productDto.setPrice(price); 
+    productDto.setDescription(description);
+    productDto.setStock(stock);
+    productDto.setRating(rating);
+    productDto.setImageUrl(imageUrl);
+
+    // Convert ProductDto to Product entity
+    Product product = new Product();
+    product.setName(productDto.getName());
+    product.setBrand(productDto.getBrand());
+    product.setPrice(productDto.getPrice());
+    product.setDescription(productDto.getDescription());
+    product.setStock(productDto.getStock()); 
+    product.setRating(productDto.getRating());
+    product.setImageUrl(productDto.getImageUrl());
+
+    // Save product to database
+    Product savedProduct = productService.createProduct(productDto);
+    return ResponseEntity.ok(savedProduct);
+    }
+
 
     private String saveImage(MultipartFile file) {
-        try {
-            String imageName = System.currentTimeMillis() + ".jpg";
-            Path path = Paths.get("src/upload/" + imageName);
-            Files.createDirectories(path.getParent()); 
-            Files.write(path, file.getBytes()); 
-            return "/upload/" + imageName; 
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save image", e);
-        }
+    try {
+        // Pastikan folder penyimpanan ada
+        String uploadDir = "src/main/resources/static/images/";
+        Files.createDirectories(Paths.get(uploadDir));
+
+        // Generate nama unik untuk gambar
+        String imageName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path path = Paths.get(uploadDir + imageName);
+        Files.write(path, file.getBytes());
+
+        // Return URL lengkap yang bisa diakses publik
+        return "http://localhost:8084/images/" + imageName;
+    } catch (IOException e) {
+        throw new RuntimeException("Failed to save image", e);
     }
+ }
 }
