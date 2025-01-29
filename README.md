@@ -1,0 +1,4 @@
+- REGISTER : Terlebih Dahulu
+- LOGIN : mendapatkann JWT Token
+- LIST-PRODUCT : akses Api security  harus set header dengan key Authorization value token yang di dapat pas melakukan login 
+- PRODUCT/{id} : lakukan hal yang sama seperti pada list - product 
